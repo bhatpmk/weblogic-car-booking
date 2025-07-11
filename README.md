@@ -1,9 +1,10 @@
-#  Samples applications built with MicroProfile AI CDI extensions for WebLogic 15.1.1
+#  Sample application built with MicroProfile AI CDI extensions for WebLogic 15.1.1
 
 ## Introduction
 
-The application(s) in the repository demonstrate leveraging LLM capabilities in enterprise java applications. The application(s)
-are built using MicroProfile CDI extensions for LangChain4J at https://github.com/langchain4j/langchain4j-cdi
+The application in the repository demonstrates leveraging LLM capabilities in enterprise java applications. The application
+is built using MicroProfile CDI extensions for LangChain4J at https://github.com/langchain4j/langchain4j-cdi and 
+with Jakarta EE 9.1 dependencies.
 
 ## Run the examples
 
