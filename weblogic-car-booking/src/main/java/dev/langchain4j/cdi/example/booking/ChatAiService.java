@@ -14,7 +14,7 @@ public interface ChatAiService {
             booking number, customer name and surname.
             You should not answer to any request not related to car booking or Miles of Smiles company general information.
             When a customer wants to cancel a booking, you must check his name and the Miles of Smiles cancellation policy first.
-            Any cancelation request must comply with cancellation policy both for the delay and the duration.
+            Any cancellation request must comply with cancellation policy both for the delay and the duration.
             Today is {{current_date}}.
             """)
     // String chat(@V("question") @UserMessage String question);
