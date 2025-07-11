@@ -2,7 +2,7 @@
 
 ## Introduction
 
-his example is derived from [Quarkus-LangChain4j](https://github.com/jefrajames/car-booking) example used to illustrate talk at [JChateau 2024](https://www.jchateau.org).
+This example is derived from [Quarkus-LangChain4j](https://github.com/jefrajames/car-booking) example used to illustrate talk at [JChateau 2024](https://www.jchateau.org).
 
 It is based on a simplified car booking application inspired from the [Java meets AI](https://www.youtube.com/watch?v=BD1MSLbs9KE) talk from [Lize Raes](https://www.linkedin.com/in/lize-raes-a8a34110/) at Devoxx Belgium 2023 with additional work from [Jean-François James](http://jefrajames.fr/). The original demo is from [Dmytro Liubarskyi](https://www.linkedin.com/in/dmytro-liubarskyi/). The car booking company is called "Miles of Smiles" and the application exposes two AI services:
 
@@ -41,7 +41,9 @@ under docs-for-rag. Make sure that the fully qualified path to llm-config.proper
 JAVA_OPTIONS when you start WebLogic.
 
 For example, set the following JAVA_OPTIONS from the terminal where you start WebLogic.
+```
 export JAVA_OPTIONS="-Dllmconfigfile=<project dir>/weblogic-car-booking/config/llm-config.properties -Ddocragdir=<project dir>/weblogic-car-booking/docs-for-rag"
+```
 
 ## Running the application
 
@@ -64,3 +66,7 @@ curl -X 'GET' 'http://<host>:<port>/weblogic-car-booking/api/car-booking/chat?qu
 ```
 
 For more information, please see [Quarkus-LangChain4j](https://github.com/jefrajames/car-booking) example.
+
+## Known limitations
+* Redeploying the application will fail with an error like "java.lang.UnsatisfiedLinkError: Native Library <home directory>/.djl.ai/tokenizers/0.20.3-0.31.1-cpu-linux-x86_64/libtokenizers.so already loaded in another classloader",
+  The sample includes DocRagIngestor.java, inspired by examples in langchain4j-cdi repository. The error comes from InMemoryEmbeddingStore, so a restart of WebLogic is required after undeploy and before subsequent deploy.
