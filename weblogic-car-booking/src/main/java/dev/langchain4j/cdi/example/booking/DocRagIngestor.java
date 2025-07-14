@@ -15,7 +15,6 @@ import jakarta.enterprise.inject.Produces;
 import org.jboss.logging.Logger;
 
 import java.io.File;
-import java.net.URL;
 import java.util.List;
 
 import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocuments;
@@ -23,9 +22,6 @@ import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.load
 @ApplicationScoped
 public class DocRagIngestor {
 
-    // NOTE: The current code is based on other examples. The application redeployment fail with an error like below:
-    //  java.lang.UnsatisfiedLinkError: Native Library <path>/.djl.ai/tokenizers/0.20.0-0.30.0-cpu-osx-aarch64/libtokenizers.dylib already loaded in another classloader
-    //  Restart server before attempting to deploy the application again
     // Tried clearing embeddingStore, which did not help. Debug this later
 	private static final Logger LOGGER = Logger.getLogger(DocRagIngestor.class.getName());
 

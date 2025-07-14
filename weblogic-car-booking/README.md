@@ -24,7 +24,21 @@ The sample depends on artifacts langchani4j-cdi-core and langchain4j-cdi-portabl
 artifacts are not available in Maven central, build the modules from https://github.com/langchain4j/langchain4j-cdi locally
 using command 'mvn clean install', before building this application. The script build.sh provides the function to build langchain4j-cdi locally.
 
-The application expects Ollama server is accessible via the URL http://localhost:11434/ and LLaMA 3 language model llama3.1 is running.
+The application uses the OpenAI API key demo, which is free for demonstration purposes. The demo key has a quota and is restricted to
+the gpt-4o-mini model. Please expand **What if I don't have an API key?** in the documentation at
+https://github.com/langchain4j/langchain4j/blob/main/docs/docs/integrations/language-models/open-ai.md#api-key
+
+__Issue:__ Connecting to http://langchain4j.dev/demo/openai/v1 from corporate proxy times out.
+
+In order to overcome the limitation of demo key, you can run Ollama model llama3.1 and update llm-config.properties in config directory to
+replace the existing properties for base URL, model name and API key as below.
+
+__Assumption:__ Ollama is running locally and accessible via the URL http://localhost:11434/
+```
+dev.langchain4j.plugin.chat-model.config.base-url=http://localhost:11434/v1
+dev.langchain4j.plugin.chat-model.config.model-name=llama3.1
+dev.langchain4j.plugin.chat-model.config.api-key=not-needed
+```
 
 ## Packaging the application
 
@@ -69,4 +83,4 @@ For more information, please see [Quarkus-LangChain4j](https://github.com/jefraj
 
 ## Known limitations
 * Redeploying the application will fail with an error like "java.lang.UnsatisfiedLinkError: Native Library <home directory>/.djl.ai/tokenizers/0.20.3-0.31.1-cpu-linux-x86_64/libtokenizers.so already loaded in another classloader",
-  The sample includes DocRagIngestor.java, inspired by examples in langchain4j-cdi repository. The error comes from InMemoryEmbeddingStore, so a restart of WebLogic is required after undeploy and before subsequent deploy.
+  Probably the error is coming due to the use of InMemoryEmbeddingStore, so a restart of WebLogic is required after undeploy and before subsequent deploy.
