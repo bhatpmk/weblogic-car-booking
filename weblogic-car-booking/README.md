@@ -20,15 +20,12 @@ The project has been developed and tested with:
 * LangChain4j 1.1.0
 * Maven 3.9.9
 
-The sample depends on artifacts langchani4j-cdi-core and langchain4j-cdi-portable-extn with version 1.0.0-SNAPSHOT. As these 
-artifacts are not available in Maven central, build the modules from https://github.com/langchain4j/langchain4j-cdi locally
-using command 'mvn clean install', before building this application. The script build.sh provides the function to build langchain4j-cdi locally.
-
 The application uses the OpenAI API key demo, which is free for demonstration purposes. The demo key has a quota and is restricted to
 the gpt-4o-mini model. Please expand **What if I don't have an API key?** in the documentation at
 https://github.com/langchain4j/langchain4j/blob/main/docs/docs/integrations/language-models/open-ai.md#api-key
 
-__Issue:__ Connecting to http://langchain4j.dev/demo/openai/v1 from corporate proxy times out.
+__Issue:__ Connecting to http://langchain4j.dev/demo/openai/v1 from corporate proxy times out. If you would like to try the sample with this model, 
+please disconnect from VPN before accessing the /chat endpoint.
 
 In order to overcome the limitation of demo key, you can run Ollama model llama3.1 and update llm-config.properties in config directory to
 replace the existing properties for base URL, model name and API key as below.
@@ -45,7 +42,7 @@ dev.langchain4j.plugin.chat-model.config.api-key=not-needed
 ### Build weblogic-car-booking
 ```
 cd <project_root>
-cd mvn clean package
+mvn -U clean package
 ```
 
 ## Configuration
@@ -67,12 +64,14 @@ export JAVA_OPTIONS="-Dllmconfigfile=<project dir>/weblogic-car-booking/config/l
 $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl t3://<admin host>:<admin port>  -username <user>  -password <password> -deploy -name weblogic-car-booking -targets AdminServer <path>/weblogic-car-booking.war
 ```
 
-The script build.sh includes functions build, deploy and undeploy the demo application. Please take a look at the environment variables 
-required by the script and the functions to know more.
+The script weblogic-demo includes functions build, deploy and undeploy the demo application. Please take a look at the environment variables 
+required by the script.
 
 ## Access chat service
 
-The chat service can be accessed in a browser by accessing the URL http://<host>:<port>/weblogic-car-booking/
+The chat service can be accessed in a browser by accessing the URL http://host:port/weblogic-car-booking/. The index.jsp assumes that the application is deployed
+to WebLogic server running on port 7001 and is accessible using localhost.
+
 
 It can also be accessed using curl -
 ```
@@ -81,6 +80,6 @@ curl -X 'GET' 'http://<host>:<port>/weblogic-car-booking/api/car-booking/chat?qu
 
 For more information, please see [Quarkus-LangChain4j](https://github.com/jefrajames/car-booking) example.
 
-## Known limitations
+## Known Issues
 * Redeploying the application will fail with an error like "java.lang.UnsatisfiedLinkError: Native Library <home directory>/.djl.ai/tokenizers/0.20.3-0.31.1-cpu-linux-x86_64/libtokenizers.so already loaded in another classloader",
   Probably the error is coming due to the use of InMemoryEmbeddingStore, so a restart of WebLogic is required after undeploy and before subsequent deploy.
