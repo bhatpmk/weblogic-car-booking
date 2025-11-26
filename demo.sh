@@ -27,8 +27,8 @@ if [ -z "${WL_HOME}" ]; then
     exit 1
 fi
 
-demo() {
-    echo "Building weblogic-car-booking"
+build() {
+    echo "Building car-booking"
     cd $BASE_DIR
     mvn -U clean package
 }
@@ -38,9 +38,9 @@ undeploy() {
     echo "Environment variable ADMIN_PASSWORD not set"
     exit 1
   fi
-  echo "Undeploying weblogic-car-booking..."
+  echo "Undeploying car-booking..."
   cd $BASE_DIR
-  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -undeploy -name weblogic-car-booking -targets $SERVER_NAME
+  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -undeploy -name car-booking -targets $SERVER_NAME
 }
 
 deploy() {
@@ -48,12 +48,12 @@ deploy() {
     echo "Environment variable ADMIN_PASSWORD not set"
     exit 1
   fi
-  echo "Deploying weblogic-car-booking..."
+  echo "Deploying car-booking..."
   cd $BASE_DIR
-  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -deploy -name weblogic-car-booking -targets $SERVER_NAME $BASE_DIR/weblogic-car-booking/target/weblogic-car-booking.war
+  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -deploy -name car-booking -targets $SERVER_NAME $BASE_DIR/sample/target/car-booking.war
 }
 
-test() {
+chat() {
   # Sample prompt to /chat endpoint
   sample_prompt="Hello, how can you help me?"
   # sample_prompt="What is your list of cars?"
@@ -71,15 +71,26 @@ test() {
   echo "Testing sample /chat endpoint, with the prompt - $sample_prompt"
 
   encoded_prompt=$(jq -rn --arg q "$sample_prompt" '$q | @uri')
-  url="http://${WL_HOST}:${ADMIN_PORT}/weblogic-car-booking/api/car-booking/chat?question=${encoded_prompt}"\
+
+  url="http://${WL_HOST}:${ADMIN_PORT}/car-booking/api/car-booking/chat?question=${encoded_prompt}"
 
   echo "URL $url"
   curl -X 'GET' $url -H 'accept: text/plain'
   echo -e "\n"
 }
 
+fraud() {
+  # You can ask fraud for users James Bond and Emilio Largo
+  test_user="name=James&surname=Bond"
+  #test_user="name=Largo&surname=Emilio"
+  echo "Testing sample /fraud endpoint, for the user - $test_user"
+  url="http://${WL_HOST}:${ADMIN_PORT}/car-booking/api/car-booking/fraud?${test_user}"
+  curl -X 'GET' $url -H 'accept: application/json'
+  echo -e "\n"
+}
+
 if [ $# -eq 0 ]; then
-  echo "Usage: $0 {demo|undeploy|deploy|test}"
+  echo "Usage: $0 {build|deploy|undeploy|chat|fraud}"
   exit 1
 fi
 
@@ -88,8 +99,8 @@ COMMAND=$1
 
 # Call the appropriate function
 case "$COMMAND" in
-  demo)
-    demo
+  build)
+    build
     ;;
   undeploy)
     undeploy
@@ -97,11 +108,14 @@ case "$COMMAND" in
   deploy)
     deploy
     ;;
-  test)
-    test
+  chat)
+    chat
+    ;;
+  fraud)
+    fraud
     ;;
   *)
-    echo "Invalid command, usage: $0 {demo|undeploy|deploy|test}"
+    echo "Invalid command, usage: $0 {build|deploy|undeploy|chat|fraud}"
     exit 1
     ;;
 esac

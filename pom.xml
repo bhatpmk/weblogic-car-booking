@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.oracle.weblogic.langchain4j.cdi.examples</groupId>
-    <artifactId>examples</artifactId>
+    <groupId>com.oracle.weblogic.langchain4j</groupId>
+    <artifactId>demo</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Langchain4J CDI Examples: Parent</name>
 
     <modules>
-        <module>weblogic-car-booking</module>
+        <module>sample</module>
     </modules>
 
     <properties>
@@ -17,11 +17,9 @@
         <jakarta.enterprise.cdi-api.version>3.0.1</jakarta.enterprise.cdi-api.version>
         <version.weld>4.0.3.Final</version.weld>
 
-        <!-- Version from local repository, till there is a maven release -->
-        <langchain4j.cdi.version>1.0.0-SNAPSHOT</langchain4j.cdi.version>
-
-        <dev.langchain4j.core.version>1.1.0</dev.langchain4j.core.version>
-        <dev.langchain4j.community.version>1.1.0-beta7</dev.langchain4j.community.version>
+        <langchain4j.cdi.version>0.0.7</langchain4j.cdi.version>
+        <dev.langchain4j.core.version>1.7.1</dev.langchain4j.core.version>
+        <dev.langchain4j.community.version>1.7.1-beta14</dev.langchain4j.community.version>
 
         <slf4j.jdk14.version>2.0.17</slf4j.jdk14.version>
 
@@ -43,12 +41,14 @@
                 <version>${jakarta.enterprise.cdi-api.version}</version>
                 <scope>provided</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.jboss.weld</groupId>
                 <artifactId>weld-core-impl</artifactId>
                 <version>${version.weld}</version>
                 <scope>runtime</scope>
             </dependency>
+
             <dependency>
                 <groupId>dev.langchain4j.cdi</groupId>
                 <artifactId>langchain4j-cdi-portable-ext</artifactId>
@@ -101,24 +101,18 @@
             </dependency>
 
             <dependency>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-jdk14</artifactId>
-               <version>${slf4j.jdk14.version}</version>
-               <scope>runtime</scope>
-           </dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-ollama</artifactId>
+                <version>${dev.langchain4j.core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>${slf4j.jdk14.version}</version>
+                <scope>runtime</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <repositories>
-        <repository>
-            <id>sonatype-snapshots</id>
-            <url>https://central.sonatype.com/repository/maven-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>

@@ -1,5 +1,7 @@
 package dev.langchain4j.cdi.example.booking;
 
+import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocuments;
+
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
@@ -12,18 +14,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Produces;
-import org.jboss.logging.Logger;
-
 import java.io.File;
 import java.util.List;
-
-import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocuments;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class DocRagIngestor {
 
-    // Tried clearing embeddingStore, which did not help. Debug this later
-	private static final Logger LOGGER = Logger.getLogger(DocRagIngestor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DocRagIngestor.class.getName());
 
     // Used by ContentRetriever
     @Produces
@@ -52,8 +50,8 @@ public class DocRagIngestor {
         List<Document> docs = loadDocs();
         ingestor.ingest(docs);
 
-        LOGGER.info(String.format("DEMO %d documents ingested in %d msec", docs.size(),
-                System.currentTimeMillis() - start));
+        LOGGER.info(String.format(
+                "DEMO %d documents ingested in %d msec", docs.size(), System.currentTimeMillis() - start));
     }
 
     public static void main(String[] args) {

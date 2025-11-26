@@ -16,7 +16,7 @@
             responseContainer.innerText = "Thinking...";
 
             try {
-                const response = await fetch(`http://localhost:7001/weblogic-car-booking/api/car-booking/chat?question=` + encodeURIComponent(question), {
+                const response = await fetch(`http://localhost:7001/car-booking/api/car-booking/chat?question=` + encodeURIComponent(question), {
                     method: 'GET',
                     headers: {
                         'Accept': 'text/plain'
