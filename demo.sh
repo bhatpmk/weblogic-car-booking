@@ -1,0 +1,121 @@
+#!/bin/bash
+
+set -e
+BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if ! command -v mvn >/dev/null 2>&1; then
+  echo "Maven is not available in PATH."
+  exit 1
+fi
+
+JAVA_HOME="${JAVA_HOME}"
+WL_HOME="${WL_HOME}"
+WL_HOST="${WL_HOST:-"localhost"}"
+ADMIN_PORT="${ADMIN_PORT:-"7001"}"
+ADMIN_URL="${ADMIN_URL:-"t3://${WL_HOST}:${ADMIN_PORT}"}"
+ADMIN_USER="${ADMIN_USER:-"weblogic"}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD}"
+SERVER_NAME="${SERVER_NAME:-"AdminServer"}"
+
+if [ -z "${JAVA_HOME}" ]; then
+    echo "Environment variable JAVA_HOME not set"
+    exit 1
+fi
+
+if [ -z "${WL_HOME}" ]; then
+    echo "Environment variable WL_HOME not set"
+    exit 1
+fi
+
+build() {
+    echo "Building car-booking"
+    cd $BASE_DIR
+    mvn -U clean package
+}
+
+undeploy() {
+  if [ -z "${ADMIN_PASSWORD}" ]; then
+    echo "Environment variable ADMIN_PASSWORD not set"
+    exit 1
+  fi
+  echo "Undeploying car-booking..."
+  cd $BASE_DIR
+  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -undeploy -name car-booking -targets $SERVER_NAME
+}
+
+deploy() {
+  if [ -z "${ADMIN_PASSWORD}" ]; then
+    echo "Environment variable ADMIN_PASSWORD not set"
+    exit 1
+  fi
+  echo "Deploying car-booking..."
+  cd $BASE_DIR
+  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -deploy -name car-booking -targets $SERVER_NAME $BASE_DIR/sample/target/car-booking.war
+}
+
+chat() {
+  # Sample prompt to /chat endpoint
+  sample_prompt="Hello, how can you help me?"
+  # sample_prompt="What is your list of cars?"
+  # sample_prompt="What is your cancellation policy?"
+  # sample_prompt="What is your fleet size? Be short please."
+  # sample_prompt="How many electric cars do you have?"
+  # sample_prompt="My name is James Bond, please list my bookings"
+  # sample_prompt="Is my booking 123-456 cancelable?"
+  # sample_prompt="Is my booking 234-567 cancelable?"
+  # sample_prompt="Can you check the duration please?"
+  # sample_prompt="I'm James Bond, can I cancel all my booking 345-678?"
+  # sample_prompt="Can you provide the details of all my bookings?"
+  # sample_prompt="fraud James Bond"
+  # sample_prompt="fraud Emilio Largo"
+  echo "Testing sample /chat endpoint, with the prompt - $sample_prompt"
+
+  encoded_prompt=$(jq -rn --arg q "$sample_prompt" '$q | @uri')
+
+  url="http://${WL_HOST}:${ADMIN_PORT}/car-booking/api/car-booking/chat?question=${encoded_prompt}"
+
+  echo "URL $url"
+  curl -X 'GET' $url -H 'accept: text/plain'
+  echo -e "\n"
+}
+
+fraud() {
+  # You can ask fraud for users James Bond and Emilio Largo
+  test_user="name=James&surname=Bond"
+  #test_user="name=Largo&surname=Emilio"
+  echo "Testing sample /fraud endpoint, for the user - $test_user"
+  url="http://${WL_HOST}:${ADMIN_PORT}/car-booking/api/car-booking/fraud?${test_user}"
+  curl -X 'GET' $url -H 'accept: application/json'
+  echo -e "\n"
+}
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 {build|deploy|undeploy|chat|fraud}"
+  exit 1
+fi
+
+# Read the first parameter
+COMMAND=$1
+
+# Call the appropriate function
+case "$COMMAND" in
+  build)
+    build
+    ;;
+  undeploy)
+    undeploy
+    ;;
+  deploy)
+    deploy
+    ;;
+  chat)
+    chat
+    ;;
+  fraud)
+    fraud
+    ;;
+  *)
+    echo "Invalid command, usage: $0 {build|deploy|undeploy|chat|fraud}"
+    exit 1
+    ;;
+esac
