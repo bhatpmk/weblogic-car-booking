@@ -48,8 +48,7 @@ weblogic-car-booking/
 
 - Java 17
 - Maven 3.9.x
-- Oracle WebLogic Server 15.1.1
-- Apache Derby (the WebLogic-bundled Derby is sufficient)
+- Oracle WebLogic Server 15.1.1, started with derby enabled
 
 ---
 
