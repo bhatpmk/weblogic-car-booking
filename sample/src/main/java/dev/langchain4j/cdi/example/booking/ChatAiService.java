@@ -6,7 +6,7 @@ import dev.langchain4j.service.SystemMessage;
 @SuppressWarnings("CdiManagedBeanInconsistencyInspection")
 @RegisterAIService(
         tools = BookingService.class,
-        // contentRetrieverName = "docRagRetriever", // Runtime error WELD-001334: Unsatisfied dependencies for type EmbeddingModel with qualifiers
+        contentRetrieverName = "docRagRetriever",
         chatMemoryName = "chat-ai-service-memory",
         chatModelName = "chat-model")
 public interface ChatAiService {
