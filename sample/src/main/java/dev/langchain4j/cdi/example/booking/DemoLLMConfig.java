@@ -24,7 +24,6 @@ public class DemoLLMConfig extends LLMConfig {
     public void init() {
         try (FileReader fileReader = new FileReader(System.getProperty("llmconfigfile"))) {
             properties.load(fileReader);
-            // Workaround for https://github.com/langchain4j/langchain4j-cdi/issues/144
             // CommonLLMPluginCreator calls llmConfig.getBeanPropertyValue(beanName, LLMConfig.PRODUCER, ProducerFunction.class)
             // to find out a ProducerFunction. If found, invokes this ProducerFunction to build the bean
             String beanProducer =getValue(PREFIX + ".docRagRetriever.defined_bean_producer");
