@@ -57,7 +57,6 @@ public class BookingService {
         try (Connection con = resolveDataSource().getConnection()) {
             System.out.println("DB URL (checkBookingExists): " + con.getMetaData().getURL());
 
-            // First attempt: provided order (name, surname)
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, bookingNumber);
                 ps.setString(2, name);
@@ -68,18 +67,20 @@ public class BookingService {
                         booking.setBookingNumber(rs.getString("BOOKING_NUMBER"));
                         Date start = rs.getDate("START_DATE");
                         Date end = rs.getDate("END_DATE");
+                        System.out.println("Start date: " + start + " end date: " + end);
                         booking.setStart(start != null ? start.toLocalDate() : null);
                         booking.setEnd(end != null ? end.toLocalDate() : null);
                         booking.setCanceled(rs.getShort("CANCELED") != 0);
                         booking.setCarModel(rs.getString("CAR_MODEL"));
                         booking.setCustomer(new Customer(rs.getString("NAME"), rs.getString("SURNAME")));
+                        System.out.println(booking);
                         return booking;
                     }
                 }
             }
 
             // Second attempt: swapped order (surname, name) to be user-friendly
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
+            /*try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, bookingNumber);
                 ps.setString(2, surname);
                 ps.setString(3, name);
@@ -97,7 +98,7 @@ public class BookingService {
                         return booking;
                     }
                 }
-            }
+            }*/
             throw new BookingNotFoundException(bookingNumber);
         } catch (SQLException e) {
             throw new RuntimeException("DB error while fetching booking " + bookingNumber, e);
@@ -134,6 +135,7 @@ public class BookingService {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         String bookingId = rs.getString("BOOKING_NUMBER");
+                        System.out.println("Booking ID: " + bookingId);
                         if (!bookingIds.contains(bookingId)) {
                             bookingIds.add(bookingId);
                         }
@@ -141,7 +143,7 @@ public class BookingService {
                 }
             }
             // Try swapped order
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
+            /*try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setString(1, surname);
                 ps.setString(2, name);
                 System.out.println("Bookings query try2 (swapped) name:" + surname + " surname:" + name);
@@ -153,7 +155,7 @@ public class BookingService {
                         }
                     }
                 }
-            }
+            }*/
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("DB error while listing bookings for customer " + name + " " + surname, e);
@@ -163,14 +165,17 @@ public class BookingService {
 
     public void checkCancelPolicy(Booking booking) {
 
+        System.out.println("checkCancelPolicy: " + booking);
         // Reservations can be cancelled up to 7 days prior to the start of the booking
         // period
         if (LocalDate.now().plusDays(7).isAfter(booking.getStart())) {
+            System.out.println("checkCancelPolicy: it is too late to cancel booking");
             throw new BookingCannotBeCanceledException(booking.getBookingNumber() + " Too late");
         }
 
         // If the booking period is less than 3 days, cancellations are not permitted.
         if (booking.getEnd().compareTo(booking.getStart().plusDays(3)) < 0) {
+            System.out.println("checkCancelPolicy: it is too short to cancel booking");
             throw new BookingCannotBeCanceledException(booking.getBookingNumber() + " Too short");
         }
     }
@@ -180,10 +185,14 @@ public class BookingService {
         LOGGER.info("DEMO: Calling Tool-cancelBooking " + bookingNumber + " for customer: " + name + " " + surname);
 
         Booking booking = checkBookingExists(bookingNumber, name, surname);
-
-        if (booking.isCanceled()) throw new BookingCannotBeCanceledException(bookingNumber);
+        System.out.println("bookingNumber : " + bookingNumber + " exists");
+        if (booking.isCanceled()) {
+            System.out.println("bookingNumber : " + bookingNumber + " is already canceled");
+            throw new BookingCannotBeCanceledException(bookingNumber);
+        }
 
         checkCancelPolicy(booking);
+        System.out.println("Attempt cancelling booking number : " + bookingNumber);
 
         String sql = "UPDATE BOOKING SET CANCELED = 1 WHERE BOOKING_NUMBER = ?";
         try (Connection con = resolveDataSource().getConnection();
@@ -196,7 +205,6 @@ public class BookingService {
         } catch (SQLException e) {
             throw new RuntimeException("DB error while canceling booking " + bookingNumber, e);
         }
-
         booking.setCanceled(true);
         System.out.println("Booking " + booking.getBookingNumber());
         return booking;

@@ -2,9 +2,9 @@
 # Usage (online WLST):
 #   ${WL_HOME}/common/bin/wlst.sh sample/wlst/create-derby-ds.py \ 
 #     --adminUrl t3://localhost:7001 --user weblogic --password welcome1 \
-#     --dsName CarBookingDS --jndi jdbc/CarBookingDS \
+#     --dsName CarBookingDS --jndiName jdbc/CarBookingDS \
 #     --driver org.apache.derby.jdbc.EmbeddedDriver \
-#     --url jdbc:derby:/path/to/domain/derby/milesofsmiles;create=true \
+#     --url jdbc:derby:/absolute/path/to/milesofsmiles;create=true \
 #     --target AdminServer
 #
 # Notes:
@@ -21,7 +21,7 @@ def parse_args(argv):
         'user': None,
         'password': None,
         'dsName': 'CarBookingDS',
-        'jndi': 'jdbc/CarBookingDS',
+        'jndiName': 'jdbc/CarBookingDS',
         'driver': 'org.apache.derby.jdbc.EmbeddedDriver',
         'url': 'jdbc:derby:milesofsmiles;create=true',
         'target': 'AdminServer',
@@ -42,8 +42,8 @@ def parse_args(argv):
             args['password'] = val; i += 2
         elif key in ['--dsName', '-dsName']:
             args['dsName'] = val; i += 2
-        elif key in ['--jndi', '-jndi']:
-            args['jndi'] = val; i += 2
+        elif key in ['--jndiName', '-jndiName']:
+            args['jndiName'] = val; i += 2
         elif key in ['--driver', '-driver']:
             args['driver'] = val; i += 2
         elif key in ['--url', '-url']:
@@ -66,8 +66,8 @@ def parse_args(argv):
     return args
 
 def print_help_and_exit():
-    print('Usage: wlst create-derby-ds.py --adminUrl t3://host:port --user <user> --password <pwd> [--dsName CarBookingDS] [--jndi jdbc/CarBookingDS]')
-    print('       [--driver org.apache.derby.jdbc.EmbeddedDriver] [--url jdbc:derby:/path/to/domain/derby/milesofsmiles;create=true] [--target AdminServer] [--dbUser <db user>] [--dbPassword <db password>]')
+    print('Usage: wlst create-derby-ds.py --adminUrl t3://host:port --user <user> --password <pwd> [--dsName CarBookingDS] [--jndiName jdbc/CarBookingDS]')
+    print('       [--driver org.apache.derby.jdbc.EmbeddedDriver] [--url jdbc:derby:/absolute/path/to/milesofsmiles;create=true] [--target AdminServer] [--dbUser <db user>] [--dbPassword <db password>]')
     exit(1)
 
 def ensure_no_existing(dsName):
@@ -86,7 +86,6 @@ def main(argv):
     connect(args['user'], args['password'], args['adminUrl'])
 
     try:
-        # Ensure we are in the config tree for lookups/creates
         domainConfig()
 
         if ensure_no_existing(args['dsName']):
@@ -95,19 +94,17 @@ def main(argv):
 
         edit()
         startEdit()
-        # Ensure edit tree is current
         cd('/')
 
         print('Creating JDBCSystemResource with name ' + args['dsName'])
         jdbcSR = create(args['dsName'], 'JDBCSystemResource')
 
         theJDBCResource = jdbcSR.getJDBCResource()
-        # Logical resource name; keep simple and readable (align with user's example)
-        theJDBCResource.setName(args['jndi'])
+        theJDBCResource.setName(args['jndiName'])
 
         # DataSource params (JNDI)
         dsParams = theJDBCResource.getJDBCDataSourceParams()
-        dsParams.setJNDINames(jarray.array([String(args['jndi'])], String))
+        dsParams.setJNDINames(jarray.array([String(args['jndiName'])], String))
 
         # Driver params
         drvParams = theJDBCResource.getJDBCDriverParams()
@@ -129,7 +126,6 @@ def main(argv):
         # Connection pool params
         poolParams = theJDBCResource.getJDBCConnectionPoolParams()
         poolParams.setTestConnectionsOnReserve(True)
-        # WebLogic expects a table name (not a query)
         poolParams.setTestTableName('SYS.SYSTABLES')
 
         # Target the resource to the desired server
@@ -160,6 +156,5 @@ def main(argv):
         except:
             pass
 
-# WLST entry
 if __name__ == '__main__' or True:
     main(sys.argv[1:])

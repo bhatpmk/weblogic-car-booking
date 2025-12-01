@@ -3,4 +3,5 @@ target/
 .classpath
 .idea
 /.vscode/*
+scripts/sql/derby.log
 

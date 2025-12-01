@@ -50,28 +50,18 @@ deploy() {
   fi
   echo "Deploying car-booking..."
   cd $BASE_DIR
-  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -deploy -name car-booking -targets $SERVER_NAME $BASE_DIR/sample/target/car-booking.war
+  $JAVA_HOME/bin/java -cp $WL_HOME/server/lib/weblogic.jar weblogic.Deployer -adminurl $ADMIN_URL  -username $ADMIN_USER  -password $ADMIN_PASSWORD -deploy -name car-booking -targets $SERVER_NAME $BASE_DIR/app/target/car-booking.war
 }
 
 chat() {
-  # Sample prompt to /chat endpoint
+  cd $BASE_DIR
+  $JAVA_HOME/bin/java -cp $BASE_DIR/client/target/classes dev.langchain4j.cdi.example.booking.client.ChatClient "http://localhost:7001/car-booking/api/car-booking/chat"
+}
+
+sanity() {
   sample_prompt="Hello, how can you help me?"
-  # sample_prompt="What is your list of cars?"
-  # sample_prompt="What is your cancellation policy?"
-  # sample_prompt="What is your fleet size? Be short please."
-  # sample_prompt="How many electric cars do you have?"
-  # sample_prompt="My name is James Bond, please list my bookings"
-  # sample_prompt="Is my booking 123-456 cancelable?"
-  # sample_prompt="Is my booking 234-567 cancelable?"
-  # sample_prompt="Can you check the duration please?"
-  # sample_prompt="I'm James Bond, can I cancel all my booking 345-678?"
-  # sample_prompt="Can you provide the details of all my bookings?"
-  # sample_prompt="fraud James Bond"
-  # sample_prompt="fraud Emilio Largo"
   echo "Testing sample /chat endpoint, with the prompt - $sample_prompt"
-
   encoded_prompt=$(jq -rn --arg q "$sample_prompt" '$q | @uri')
-
   url="http://${WL_HOST}:${ADMIN_PORT}/car-booking/api/car-booking/chat?question=${encoded_prompt}"
 
   echo "URL $url"
@@ -90,7 +80,7 @@ fraud() {
 }
 
 if [ $# -eq 0 ]; then
-  echo "Usage: $0 {build|deploy|undeploy|chat|fraud}"
+  echo "Usage: $0 {build|deploy|undeploy|chat|fraud|curl}"
   exit 1
 fi
 
@@ -114,8 +104,11 @@ case "$COMMAND" in
   fraud)
     fraud
     ;;
+  sanity)
+    sanity
+    ;;
   *)
-    echo "Invalid command, usage: $0 {build|deploy|undeploy|chat|fraud}"
+    echo "Invalid command, usage: $0 {build|deploy|undeploy|chat|fraud|sanity}"
     exit 1
     ;;
 esac
