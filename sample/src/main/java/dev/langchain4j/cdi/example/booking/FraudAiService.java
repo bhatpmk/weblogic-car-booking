@@ -7,7 +7,7 @@ import dev.langchain4j.service.V;
 
 @SuppressWarnings("CdiManagedBeanInconsistencyInspection")
 @RegisterAIService(
-        // contentRetrieverName = "docRagRetriever", // Runtime error WELD-001334: Unsatisfied dependencies for type EmbeddingModel with qualifiers
+        contentRetrieverName = "docRagRetriever",
         chatMemoryName = "fraud-ai-service-memory",
         chatModelName = "chat-model")
 public interface FraudAiService {
