@@ -8,7 +8,8 @@
     <name>Langchain4J CDI Examples: Parent</name>
 
     <modules>
-        <module>sample</module>
+        <module>app</module>
+        <module>client</module>
     </modules>
 
     <properties>
