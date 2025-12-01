@@ -9,7 +9,7 @@ It is based on a simplified car booking application inspired from the [Java meet
 . a chat service to freely discuss with a customer assistant
 . a fraud service to determine if a customer is a fraudster
 
-For the sake of simplicity, there is no database interaction, the application is standalone and can be used "as is".
+This sample now uses an embedded Apache Derby database accessed through a WebLogic-managed JDBC Data Source. The JNDI name is jdbc/CarBookingDS. SQL scripts to create the schema and seed records are under sample/db, and a WLST script to create the data source is under sample/wlst.
 
 ## Technical context
 
@@ -40,6 +40,44 @@ For example, set the following JAVA_OPTIONS from the terminal where you start We
 ```
 export JAVA_OPTIONS="-Dllmconfigfile=<project dir>/sample/config/llm-config.properties -Ddocragdir=<project dir>/sample/docs-for-rag"
 ```
+
+## Database setup (Derby Embedded)
+
+Summary
+- JNDI name: jdbc/CarBookingDS
+- Derby URL (Embedded): jdbc:derby:/absolute/path/to/milesofsmiles;create=true
+- Scripts:
+  - sample/db/derby-schema.sql
+  - sample/db/derby-data.sql
+  - sample/db/derby-init.sql (edit the connect line to point at your absolute DB path)
+- WLST to create the Data Source: sample/wlst/create-derby-ds.py
+
+Step 1: Choose database location
+- Pick a writable absolute path on the server host, for example: <DOMAIN_HOME>/derby/milesofsmiles
+- Using an absolute path avoids ambiguity with working directories.
+
+Step 2: Create WebLogic JDBC Data Source (Embedded Derby)
+- Example (online WLST):
+  ${WL_HOME}/common/bin/wlst.sh sample/wlst/create-derby-ds.py \
+    --adminUrl t3://<host>:<port> --user <user> --password <password> \
+    --dsName CarBookingDS --jndi jdbc/CarBookingDS \
+    --driver org.apache.derby.jdbc.EmbeddedDriver \
+    --url jdbc:derby:/absolute/path/to/milesofsmiles;create=true \
+    --target AdminServer
+
+Step 3: Initialize schema and seed data
+- Important: Do NOT have WebLogic running while initializing the embedded Derby database (embedded DB cannot be opened by two JVMs).
+- cd sample/db
+- Edit derby-init.sql: update the connect line to the same absolute URL used in the Data Source, e.g.
+  connect 'jdbc:derby:/absolute/path/to/milesofsmiles;create=true';
+- Run ij to execute the init script. Example:
+  $JAVA_HOME/bin/java -cp "$DERBY_HOME/lib/derbytools.jar:$DERBY_HOME/lib/derby.jar" org.apache.derby.tools.ij derby-init.sql
+- Alternatively, start ij interactively, connect with the URL above, then run derby-schema.sql and derby-data.sql
+
+Step 4: Start WebLogic and verify
+- Start WebLogic.
+- Optionally test the Data Source from the Admin Console (test table name: SYSTABLES).
+- Deploy the application as described below.
 
 ## Running the application
 

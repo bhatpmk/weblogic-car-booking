@@ -1,0 +1,67 @@
+-- Seed data for Miles of Smiles (Derby) using dynamic dates relative to now
+-- This mirrors the original BookingService.java hard-coded logic, but computed at load time.
+-- Uses TIMESTAMPADD to add days to CURRENT_TIMESTAMP and casts back to DATE.
+
+-- Insert customers
+INSERT INTO CUSTOMER (ID, NAME, SURNAME) VALUES (1, 'James', 'Bond');
+INSERT INTO CUSTOMER (ID, NAME, SURNAME) VALUES (2, 'Largo', 'Emilio');
+
+-- Helper notes:
+-- CAST({fn TIMESTAMPADD(SQL_TSI_DAY, N, CURRENT_TIMESTAMP)} AS DATE) yields CURRENT_DATE + N days
+
+-- Insert bookings for James Bond
+-- 123-456: start = now+1, end = now+7 (Not cancelable: too late)
+INSERT INTO BOOKING (BOOKING_NUMBER, START_DATE, END_DATE, CANCELED, CAR_MODEL, CUSTOMER_ID)
+VALUES (
+  '123-456',
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 1, CURRENT_TIMESTAMP)} AS DATE),
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 7, CURRENT_TIMESTAMP)} AS DATE),
+  0,
+  'Aston Martin',
+  1
+);
+
+-- 234-567: start = now+10, end = now+12 (Not cancelable: too short)
+INSERT INTO BOOKING (BOOKING_NUMBER, START_DATE, END_DATE, CANCELED, CAR_MODEL, CUSTOMER_ID)
+VALUES (
+  '234-567',
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 10, CURRENT_TIMESTAMP)} AS DATE),
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 12, CURRENT_TIMESTAMP)} AS DATE),
+  0,
+  'Renault',
+  1
+);
+
+-- 345-678: start = now+14, end = now+20 (Cancelable)
+INSERT INTO BOOKING (BOOKING_NUMBER, START_DATE, END_DATE, CANCELED, CAR_MODEL, CUSTOMER_ID)
+VALUES (
+  '345-678',
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 14, CURRENT_TIMESTAMP)} AS DATE),
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 20, CURRENT_TIMESTAMP)} AS DATE),
+  0,
+  'Porsche',
+  1
+);
+
+-- Insert bookings for Largo Emilio
+-- 456-789: start = now+10, end = now+20 (Cancelable)
+INSERT INTO BOOKING (BOOKING_NUMBER, START_DATE, END_DATE, CANCELED, CAR_MODEL, CUSTOMER_ID)
+VALUES (
+  '456-789',
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 10, CURRENT_TIMESTAMP)} AS DATE),
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 20, CURRENT_TIMESTAMP)} AS DATE),
+  0,
+  'Porsche',
+  2
+);
+
+-- 567-890: start = now+11, end = now+16 (Cancelable)
+INSERT INTO BOOKING (BOOKING_NUMBER, START_DATE, END_DATE, CANCELED, CAR_MODEL, CUSTOMER_ID)
+VALUES (
+  '567-890',
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 11, CURRENT_TIMESTAMP)} AS DATE),
+  CAST({fn TIMESTAMPADD(SQL_TSI_DAY, 16, CURRENT_TIMESTAMP)} AS DATE),
+  0,
+  'BMW',
+  2
+);
