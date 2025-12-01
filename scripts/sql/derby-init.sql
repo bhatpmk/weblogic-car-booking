@@ -1,4 +1,4 @@
--- ij bootstrap to initialize Miles of Smiles Derby database
+--Initialize Miles of Smiles Derby database
 -- Usage with ij (embedded):
 --   java -cp $DERBY_HOME/lib/derbytools.jar:$DERBY_HOME/lib/derby.jar org.apache.derby.tools.ij derby-init.sql
 
